@@ -22,6 +22,12 @@
 			"recommended": true,
 			"style": {
 				"useImportType": "off"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "off"
+			},
+			"suspicious": {
+				"noArrayIndexKey": "off"
 			}
 		}
 	},

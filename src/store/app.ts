@@ -1,4 +1,5 @@
 import { StateCreator, create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 import { Mode } from "../model/mode";
 import { Schedule, WorkMode } from "../model/schedule";
 import { Task } from "../model/task";
@@ -32,14 +33,22 @@ export type AppState = ModeSlice &
   TaskSlice &
   WeekStartDateSlice;
 
-const createModeSlice: StateCreator<AppState, [], [], ModeSlice> = (set) => ({
+const createModeSlice: StateCreator<
+  AppState,
+  [["zustand/devtools", never]],
+  [["zustand/persist", AppState]],
+  ModeSlice
+> = (set) => ({
   mode: "plan",
   setMode: (mode: Mode) => set({ mode }),
 });
 
-const createScheduleSlice: StateCreator<AppState, [], [], ScheduleSlice> = (
-  set,
-) => ({
+const createScheduleSlice: StateCreator<
+  AppState,
+  [["zustand/devtools", never]],
+  [["zustand/persist", AppState]],
+  ScheduleSlice
+> = (set) => ({
   schedule: {
     plan: [],
     do: [],
@@ -72,7 +81,12 @@ const createScheduleSlice: StateCreator<AppState, [], [], ScheduleSlice> = (
   },
 });
 
-const createTaskSlice: StateCreator<AppState, [], [], TaskSlice> = (set) => ({
+const createTaskSlice: StateCreator<
+  AppState,
+  [["zustand/devtools", never]],
+  [["zustand/persist", AppState]],
+  TaskSlice
+> = (set) => ({
   tasks: [],
   addTask: (task: Task) => {
     set((state) => {
@@ -96,17 +110,26 @@ const createTaskSlice: StateCreator<AppState, [], [], TaskSlice> = (set) => ({
 
 const createWeekStartDateSlice: StateCreator<
   AppState,
-  [],
-  [],
+  [["zustand/devtools", never]],
+  [["zustand/persist", AppState]],
   WeekStartDateSlice
 > = (set) => ({
   weekStartDate: new Date(),
   setWeekStartDate: (date: Date) => set({ weekStartDate: date }),
 });
 
-export const useAppStore = create<AppState>()((...a) => ({
-  ...createModeSlice(...a),
-  ...createScheduleSlice(...a),
-  ...createTaskSlice(...a),
-  ...createWeekStartDateSlice(...a),
-}));
+export const useAppStore = create<AppState>()(
+  devtools(
+    persist(
+      (...a) => ({
+        ...createModeSlice(...a),
+        ...createScheduleSlice(...a),
+        ...createTaskSlice(...a),
+        ...createWeekStartDateSlice(...a),
+      }),
+      {
+        name: "schedule-app-storage",
+      },
+    ),
+  ),
+);
