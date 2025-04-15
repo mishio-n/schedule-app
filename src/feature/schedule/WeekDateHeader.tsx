@@ -1,4 +1,4 @@
-import { da, ja } from "date-fns/locale";
+import { ja } from "date-fns/locale";
 import { cn } from "../../lib/utils";
 import { Day, format } from "date-fns";
 

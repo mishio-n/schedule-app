@@ -19,7 +19,7 @@ export const StartDatePicker: React.FC = () => {
           type="button"
           className="text-[#000000] text-lg cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
         >
-          {weekStartDate ? `${format(weekStartDate, "yyyy/MM/dd")}` : ""}
+          {weekStartDate ? `${format(weekStartDate, "yyyy / MM / dd")}` : ""}
         </button>
       </PopoverTrigger>
       <PopoverPortal>
