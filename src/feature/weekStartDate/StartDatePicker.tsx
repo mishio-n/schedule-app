@@ -7,7 +7,7 @@ import {
 import { format, startOfWeek } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Calendar } from "../../components/ui/calendar";
-import { useAppStore } from "@/src/store/app";
+import { useAppStore } from "../../store/app";
 
 export const StartDatePicker: React.FC = () => {
   const { weekStartDate, setWeekStartDate } = useAppStore();
