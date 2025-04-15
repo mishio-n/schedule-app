@@ -8,6 +8,7 @@ import { format, startOfWeek } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Calendar } from "../../components/ui/calendar";
 import { useAppStore } from "../../store/app";
+import { TZDate } from "@date-fns/tz";
 
 export const StartDatePicker: React.FC = () => {
   const { weekStartDate, setWeekStartDate } = useAppStore();
@@ -33,7 +34,10 @@ export const StartDatePicker: React.FC = () => {
             onSelect={(newDate) => {
               // 選択された日付を週の開始日（月曜日）に設定
               if (newDate) {
-                const weekStart = startOfWeek(newDate, { weekStartsOn: 1 });
+                const weekStart = startOfWeek(
+                  new TZDate(newDate, "Asia/Tokyo"),
+                  { weekStartsOn: 1 },
+                );
                 setWeekStartDate(weekStart);
               }
             }}

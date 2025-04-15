@@ -4,6 +4,8 @@ import { Mode } from "../model/mode";
 import { Schedule, WorkMode } from "../model/schedule";
 import { Task } from "../model/task";
 import { Work } from "../model/work";
+import { startOfWeek } from "date-fns";
+import { TZDate } from "@date-fns/tz";
 
 type ModeSlice = {
   mode: Mode;
@@ -11,7 +13,7 @@ type ModeSlice = {
 };
 
 type ScheduleSlice = {
-  schedule: Schedule;
+  schedules: Map<Date, Schedule>;
   addWork: (work: Work, mode: WorkMode) => void;
   updateWork: (workId: string, newWork: Work, mode: WorkMode) => void;
   deleteWork: (workId: string, mode: WorkMode) => void;
@@ -49,35 +51,55 @@ const createScheduleSlice: StateCreator<
   [["zustand/persist", AppState]],
   ScheduleSlice
 > = (set) => ({
-  schedule: {
-    plan: [],
-    do: [],
-  },
+  schedules: new Map<Date, Schedule>([
+    [startOfWeek(new Date(), { weekStartsOn: 1 }), { plan: [], do: [] }],
+  ]),
   addWork: (work: Work, mode: WorkMode) => {
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [mode]: [...state.schedule[mode], work],
-      },
-    }));
+    set((state) => {
+      const targetSchedule = state.schedules.get(state.weekStartDate);
+      if (!targetSchedule) {
+        return state;
+      }
+
+      return {
+        schedules: state.schedules.set(state.weekStartDate, {
+          ...targetSchedule,
+          [mode]: [...targetSchedule[mode], work],
+        }),
+      };
+    });
   },
   updateWork: (workId: string, newWork: Work, mode: WorkMode) => {
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [mode]: state.schedule[mode].map((work) =>
-          work.id === workId ? newWork : work,
-        ),
-      },
-    }));
+    set((state) => {
+      const targetSchedule = state.schedules.get(state.weekStartDate);
+      if (!targetSchedule) {
+        return state;
+      }
+
+      return {
+        schedules: state.schedules.set(state.weekStartDate, {
+          ...targetSchedule,
+          [mode]: targetSchedule[mode].map((work) =>
+            work.id === workId ? newWork : work,
+          ),
+        }),
+      };
+    });
   },
   deleteWork: (workId: string, mode: WorkMode) => {
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [mode]: state.schedule[mode].filter((work) => work.id !== workId),
-      },
-    }));
+    set((state) => {
+      const targetSchedule = state.schedules.get(state.weekStartDate);
+      if (!targetSchedule) {
+        return state;
+      }
+
+      return {
+        schedules: state.schedules.set(state.weekStartDate, {
+          ...targetSchedule,
+          [mode]: targetSchedule[mode].filter((work) => work.id !== workId),
+        }),
+      };
+    });
   },
 });
 
@@ -114,8 +136,11 @@ const createWeekStartDateSlice: StateCreator<
   [["zustand/persist", AppState]],
   WeekStartDateSlice
 > = (set) => ({
-  weekStartDate: new Date(),
-  setWeekStartDate: (date: Date) => set({ weekStartDate: date }),
+  weekStartDate: startOfWeek(new TZDate(new Date(), "Asia/Tokyo"), {
+    weekStartsOn: 1,
+  }),
+  setWeekStartDate: (date: Date) =>
+    set({ weekStartDate: startOfWeek(date, { weekStartsOn: 1 }) }),
 });
 
 export const useAppStore = create<AppState>()(

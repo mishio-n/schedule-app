@@ -5,16 +5,6 @@ import { TaskTooltip } from "../feature/task/TaskTooltip";
 import { StartDatePicker } from "../feature/weekStartDate/StartDatePicker";
 import { useAppStore } from "../store/app";
 
-// スケジュールの型定義
-type Schedule = {
-  id: number;
-  column: number;
-  type: "P" | "D";
-  startHour: number;
-  endHour: number;
-  subject: string;
-};
-
 export function ScheduleApp() {
   const [showSubjectMenu, setShowSubjectMenu] = useState(false);
   const [activeSchedule, setActiveSchedule] = useState<number | null>(null);
@@ -22,7 +12,7 @@ export function ScheduleApp() {
     column: number;
     type: "P" | "D";
   } | null>(null);
-  const { weekStartDate, schedule } = useAppStore();
+  const { weekStartDate } = useAppStore();
   const [isDragging, setIsDragging] = useState(false);
 
   const gridRef = useRef<HTMLDivElement>(null);
