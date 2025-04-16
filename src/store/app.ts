@@ -1,11 +1,12 @@
-import { StateCreator, create } from "zustand";
+import { yyyymmdd } from "@/lib/date";
+import { TZDate } from "@date-fns/tz";
+import { startOfWeek } from "date-fns";
+import { create, StateCreator } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { Mode } from "../model/mode";
-import { Schedule, WorkMode } from "../model/schedule";
+import { createInitialSchedule, Schedule, WorkMode } from "../model/schedule";
 import { Task } from "../model/task";
 import { Work } from "../model/work";
-import { startOfWeek } from "date-fns";
-import { TZDate } from "@date-fns/tz";
 
 type ModeSlice = {
   mode: Mode;
@@ -13,7 +14,7 @@ type ModeSlice = {
 };
 
 type ScheduleSlice = {
-  schedules: Map<Date, Schedule>;
+  schedules: Schedule[];
   addWork: (work: Work, mode: WorkMode) => void;
   updateWork: (workId: string, newWork: Work, mode: WorkMode) => void;
   deleteWork: (workId: string, mode: WorkMode) => void;
@@ -26,7 +27,7 @@ type TaskSlice = {
 };
 
 type WeekStartDateSlice = {
-  weekStartDate: Date;
+  weekStartDate: string;
   setWeekStartDate: (date: Date) => void;
 };
 
@@ -51,53 +52,66 @@ const createScheduleSlice: StateCreator<
   [["zustand/persist", AppState]],
   ScheduleSlice
 > = (set) => ({
-  schedules: new Map<Date, Schedule>([
-    [startOfWeek(new Date(), { weekStartsOn: 1 }), { plan: [], do: [] }],
-  ]),
+  schedules: [],
   addWork: (work: Work, mode: WorkMode) => {
     set((state) => {
-      const targetSchedule = state.schedules.get(state.weekStartDate);
+      const targetSchedule = state.schedules.find(
+        (schedule) => schedule.weekStartDate === state.weekStartDate,
+      );
       if (!targetSchedule) {
         return state;
       }
 
       return {
-        schedules: state.schedules.set(state.weekStartDate, {
-          ...targetSchedule,
-          [mode]: [...targetSchedule[mode], work],
-        }),
+        schedules: state.schedules.with(
+          state.schedules.indexOf(targetSchedule),
+          {
+            ...targetSchedule,
+            [mode]: [...targetSchedule[mode], work],
+          },
+        ),
       };
     });
   },
   updateWork: (workId: string, newWork: Work, mode: WorkMode) => {
     set((state) => {
-      const targetSchedule = state.schedules.get(state.weekStartDate);
+      const targetSchedule = state.schedules.find(
+        (schedule) => schedule.weekStartDate === state.weekStartDate,
+      );
       if (!targetSchedule) {
         return state;
       }
 
       return {
-        schedules: state.schedules.set(state.weekStartDate, {
-          ...targetSchedule,
-          [mode]: targetSchedule[mode].map((work) =>
-            work.id === workId ? newWork : work,
-          ),
-        }),
+        schedules: state.schedules.with(
+          state.schedules.indexOf(targetSchedule),
+          {
+            ...targetSchedule,
+            [mode]: targetSchedule[mode].map((work) =>
+              work.id === workId ? newWork : work,
+            ),
+          },
+        ),
       };
     });
   },
   deleteWork: (workId: string, mode: WorkMode) => {
     set((state) => {
-      const targetSchedule = state.schedules.get(state.weekStartDate);
+      const targetSchedule = state.schedules.find(
+        (schedule) => schedule.weekStartDate === state.weekStartDate,
+      );
       if (!targetSchedule) {
         return state;
       }
 
       return {
-        schedules: state.schedules.set(state.weekStartDate, {
-          ...targetSchedule,
-          [mode]: targetSchedule[mode].filter((work) => work.id !== workId),
-        }),
+        schedules: state.schedules.with(
+          state.schedules.indexOf(targetSchedule),
+          {
+            ...targetSchedule,
+            [mode]: targetSchedule[mode].filter((work) => work.id !== workId),
+          },
+        ),
       };
     });
   },
@@ -136,11 +150,32 @@ const createWeekStartDateSlice: StateCreator<
   [["zustand/persist", AppState]],
   WeekStartDateSlice
 > = (set) => ({
-  weekStartDate: startOfWeek(new TZDate(new Date(), "Asia/Tokyo"), {
-    weekStartsOn: 1,
-  }),
-  setWeekStartDate: (date: Date) =>
-    set({ weekStartDate: startOfWeek(date, { weekStartsOn: 1 }) }),
+  weekStartDate: yyyymmdd(
+    startOfWeek(new TZDate(new Date(), "Asia/Tokyo"), {
+      weekStartsOn: 1,
+    }),
+  ),
+  setWeekStartDate: (date: Date) => {
+    set((state) => {
+      const weekStartDate = yyyymmdd(
+        startOfWeek(new TZDate(date, "Asia/Tokyo"), {
+          weekStartsOn: 1,
+        }),
+      );
+      // スケジュールが空の場合は、初期化する
+      if (
+        state.schedules.find(
+          (schedule) => schedule.weekStartDate === weekStartDate,
+        ) === undefined
+      ) {
+        return {
+          weekStartDate,
+          schedules: [...state.schedules, createInitialSchedule(weekStartDate)],
+        };
+      }
+      return { weekStartDate };
+    });
+  },
 });
 
 export const useAppStore = create<AppState>()(

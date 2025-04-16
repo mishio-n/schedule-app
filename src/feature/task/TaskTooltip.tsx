@@ -1,6 +1,6 @@
 import React from "react";
-import { useAppStore } from "../../store/app";
-import { ColorPicker } from "../../components/ColorPicker";
+import { useAppStore } from "@/store/app";
+import { ColorPicker } from "@/components/ColorPicker";
 
 interface TaskTooltipProps {
   onClose?: () => void;

@@ -1,18 +1,23 @@
 import { addDays, startOfWeek } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { WeekDateHeader } from "../feature/schedule/WeekDateHeader";
-import { TaskTooltip } from "../feature/task/TaskTooltip";
 import { StartDatePicker } from "../feature/weekStartDate/StartDatePicker";
 import { useAppStore } from "../store/app";
+import { ScheduleAddButton } from "../feature/schedule/ScheduleAddButton";
+import { ScheduleItem } from "../feature/schedule/ScheduleItem";
+import { ScheduleForm } from "../feature/schedule/ScheduleForm";
+import { createWork } from "../model/work";
+import { WorkMode } from "../model/schedule";
 
 export function ScheduleApp() {
   const [showSubjectMenu, setShowSubjectMenu] = useState(false);
-  const [activeSchedule, setActiveSchedule] = useState<number | null>(null);
-  const [clickedColumn, setClickedColumn] = useState<{
+  const [formOpen, setFormOpen] = useState(false);
+  const [formData, setFormData] = useState<{
+    hour: number;
     column: number;
     type: "P" | "D";
   } | null>(null);
-  const { weekStartDate } = useAppStore();
+  const { weekStartDate, schedules, addWork } = useAppStore();
   const [isDragging, setIsDragging] = useState(false);
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -40,16 +45,43 @@ export function ScheduleApp() {
     return Math.round(rawHour * 2) / 2; // 0.5時間単位に丸める
   };
 
-  // セルクリック時の処理
-  const handleCellClick = (
+  // スケジュール追加ボタンクリック時の処理
+  const handleAddButtonClick = (
+    hour: number,
     column: number,
     type: "P" | "D",
-    hour: number,
-    event: React.MouseEvent,
   ) => {
-    // ドラッグ中はクリックイベントを無視
-    if (isDragging) return;
+    setFormData({ hour, column, type });
+    setFormOpen(true);
   };
+
+  // フォーム送信時の処理
+  const handleFormSubmit = (data: {
+    title: string;
+    startHour: number;
+    endHour: number;
+    color: string;
+  }) => {
+    if (formData) {
+      const { column, type } = formData;
+      const workMode: WorkMode = type === "P" ? "plan" : "do";
+
+      const newWork = createWork({
+        name: data.title,
+        start: data.startHour,
+        end: data.endHour,
+        dayOfWeek: column - 1, // 0-based index
+        color: data.color,
+      });
+
+      addWork(newWork, workMode);
+    }
+  };
+
+  // 現在の週のスケジュールを取得
+  const currentSchedule = schedules.find(
+    (schedule) => schedule.weekStartDate === weekStartDate,
+  ) || { plan: [], do: [] };
 
   // 画面外クリックでメニューを閉じる
   useEffect(() => {
@@ -58,8 +90,6 @@ export function ScheduleApp() {
         const menuElement = document.getElementById("subject-menu");
         if (menuElement && !menuElement.contains(event.target as Node)) {
           setShowSubjectMenu(false);
-          setActiveSchedule(null);
-          setClickedColumn(null);
         }
       }
     };
@@ -69,14 +99,6 @@ export function ScheduleApp() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showSubjectMenu]);
-
-  // コンポーネントのアンマウント時にイベントリスナーをクリーンアップ
-  // useEffect(() => {
-  //   return () => {
-  //     document.removeEventListener("mousemove", handleDragMove);
-  //     document.removeEventListener("mouseup", handleDragEnd);
-  //   };
-  // }, []);
 
   return (
     <div className="min-h-screen bg-white p-4">
@@ -132,42 +154,93 @@ export function ScheduleApp() {
               className="grid grid-cols-2 border-r border-[#000000] relative"
             >
               {/* Plan側 */}
-              <div className="relative">
+              <div className="relative group">
                 {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
                     key={`p-hour-${column}-${hour}`}
                     className="border-b border-[#000000] h-8"
-                    onClick={(e) => handleCellClick(column, "P", hour, e)}
+                  />
+                ))}
+
+                {/* 予定追加ボタン（ホバー時に表示） */}
+                {hours.map((hour) => (
+                  <ScheduleAddButton
+                    key={`add-p-${column}-${hour}`}
+                    hour={hour}
+                    column={column}
+                    type="P"
+                    onClick={handleAddButtonClick}
                   />
                 ))}
 
                 {/* スケジュールブロック */}
+                {currentSchedule.plan
+                  .filter((work) => work.dayOfWeek === column - 1)
+                  .map((work) => (
+                    <ScheduleItem
+                      key={work.id}
+                      title={work.name}
+                      startHour={work.start}
+                      endHour={work.end}
+                      color={work.color}
+                    />
+                  ))}
               </div>
+
               {/* Do側 */}
-              <div className="relative">
+              <div className="relative group">
                 {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
                     key={`d-hour-${column}-${hour}`}
                     className="border-b border-[#000000] h-8"
-                    onClick={(e) => handleCellClick(column, "D", hour, e)}
                   >
                     <div className="h-full border-l border-dashed border-[#7c7c7c]" />
                   </div>
                 ))}
 
+                {/* 予定追加ボタン（ホバー時に表示） */}
+                {hours.map((hour) => (
+                  <ScheduleAddButton
+                    key={`add-d-${column}-${hour}`}
+                    hour={hour}
+                    column={column}
+                    type="D"
+                    onClick={handleAddButtonClick}
+                  />
+                ))}
+
                 {/* スケジュールブロック */}
+                {currentSchedule.do
+                  .filter((work) => work.dayOfWeek === column - 1)
+                  .map((work) => (
+                    <ScheduleItem
+                      key={work.id}
+                      title={work.name}
+                      startHour={work.start}
+                      endHour={work.end}
+                      color={work.color}
+                    />
+                  ))}
               </div>
             </div>
           ))}
         </div>
 
-        {/* 科目選択メニュー */}
-        {showSubjectMenu && (
-          <TaskTooltip
-            onClose={() => setShowSubjectMenu(false)}
-            onChange={(taskName) => console.log(taskName)}
+        {/* 予定追加フォーム */}
+        {formOpen && (
+          <ScheduleForm
+            isOpen={formOpen}
+            onClose={() => {
+              setFormOpen(false);
+              setFormData(null);
+            }}
+            onSubmit={handleFormSubmit}
+            defaultValues={{
+              startHour: formData?.hour,
+              endHour: formData ? formData.hour + 1 : undefined,
+            }}
           />
         )}
       </div>
