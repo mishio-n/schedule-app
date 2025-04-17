@@ -8,6 +8,7 @@ import { ScheduleItem } from "../feature/schedule/ScheduleItem";
 import { ScheduleForm } from "../feature/schedule/ScheduleForm";
 import { createWork } from "../model/work";
 import { WorkMode } from "../model/schedule";
+import { ResetStorageButton } from "@/feature/reset/ResetStorageButton";
 
 export function ScheduleApp() {
   const [showSubjectMenu, setShowSubjectMenu] = useState(false);
@@ -103,9 +104,12 @@ export function ScheduleApp() {
   return (
     <div className="min-h-screen bg-white p-4">
       {/* ヘッダー部分 */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4">
         <div className="flex items-center space-x-4 mb-4">
           <StartDatePicker />
+        </div>
+        <div>
+          <ResetStorageButton />
         </div>
       </div>
 
