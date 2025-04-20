@@ -4,7 +4,6 @@ import { TZDate } from "@date-fns/tz";
 import {
   Popover,
   PopoverContent,
-  PopoverPortal,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
 import { startOfWeek } from "date-fns";
@@ -23,29 +22,26 @@ export const StartDatePicker: React.FC = () => {
           {weekStartDate}
         </button>
       </PopoverTrigger>
-      <PopoverPortal>
-        <PopoverContent
-          className="w-auto p-0 bg-slate-50 shadow-lg rounded-md"
-          align="start"
-        >
-          <Calendar
-            mode="single"
-            selected={new TZDate(weekStartDate, "Asia/Tokyo")}
-            onSelect={(newDate) => {
-              // 選択された日付を週の開始日（月曜日）に設定
-              if (newDate) {
-                const weekStart = startOfWeek(
-                  new TZDate(newDate, "Asia/Tokyo"),
-                  { weekStartsOn: 1 },
-                );
-                setWeekStartDate(weekStart);
-              }
-            }}
-            locale={ja}
-            initialFocus
-          />
-        </PopoverContent>
-      </PopoverPortal>
+      <PopoverContent
+        className="w-auto p-0 bg-slate-50 shadow-lg rounded-md z-50"
+        align="start"
+      >
+        <Calendar
+          mode="single"
+          selected={new TZDate(weekStartDate, "Asia/Tokyo")}
+          onSelect={(newDate) => {
+            // 選択された日付を週の開始日（月曜日）に設定
+            if (newDate) {
+              const weekStart = startOfWeek(new TZDate(newDate, "Asia/Tokyo"), {
+                weekStartsOn: 1,
+              });
+              setWeekStartDate(weekStart);
+            }
+          }}
+          locale={ja}
+          initialFocus
+        />
+      </PopoverContent>
     </Popover>
   );
 };

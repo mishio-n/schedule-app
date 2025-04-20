@@ -1,6 +1,6 @@
 export const ResetStorageButton: React.FC = () => {
   const handleReset = () => {
-    if (confirm("本当にリセットしますか？")) {
+    if (confirm("すべてのタスクが消えます。本当にリセットしますか？")) {
       localStorage.removeItem("schedule-app-storage");
       alert("リセットしました。");
       // ページをリロードして、リセットされた状態を反映
