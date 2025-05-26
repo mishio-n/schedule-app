@@ -164,27 +164,27 @@ export function ScheduleApp() {
             >
               {/* Plan側 */}
               <div className="relative h-full w-full">
-                {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
                     key={`p-hour-${column}-${hour}`}
-                    className="border-b border-[#000000] h-8"
+                    className="border-b border-[#000000] h-8 relative"
                     onMouseEnter={() => setHoveredCell({ hour, column, type: "P" })}
                     onMouseLeave={() => setHoveredCell(null)}
-                  />
+                  >
+                    {/* 予定追加ホバーブロック（このセルがホバーされた時のみ表示） */}
+                    {hoveredCell?.hour === hour && 
+                     hoveredCell?.column === column && 
+                     hoveredCell?.type === "P" && (
+                      <HoverScheduleBlock
+                        key={`add-p-${column}-${hour}`}
+                        hour={hour}
+                        column={column}
+                        type="P"
+                        onClick={handleAddButtonClick}
+                      />
+                    )}
+                  </div>
                 ))}
-
-                {/* 予定追加ホバーブロック（特定のセルがホバーされた時のみ表示） */}
-                {hoveredCell?.column === column && 
-                 hoveredCell?.type === "P" && (
-                  <HoverScheduleBlock
-                    key={`add-p-${hoveredCell.column}-${hoveredCell.hour}`}
-                    hour={hoveredCell.hour}
-                    column={hoveredCell.column}
-                    type="P"
-                    onClick={handleAddButtonClick}
-                  />
-                )}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.plan
@@ -202,29 +202,28 @@ export function ScheduleApp() {
 
               {/* Do側 */}
               <div className="relative h-full w-full">
-                {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
                     key={`d-hour-${column}-${hour}`}
-                    className="border-b border-[#000000] h-8"
+                    className="border-b border-[#000000] h-8 relative"
                     onMouseEnter={() => setHoveredCell({ hour, column, type: "D" })}
                     onMouseLeave={() => setHoveredCell(null)}
                   >
                     <div className="h-full border-l border-dashed border-[#7c7c7c]" />
+                    {/* 予定追加ホバーブロック（このセルがホバーされた時のみ表示） */}
+                    {hoveredCell?.hour === hour && 
+                     hoveredCell?.column === column && 
+                     hoveredCell?.type === "D" && (
+                      <HoverScheduleBlock
+                        key={`add-d-${column}-${hour}`}
+                        hour={hour}
+                        column={column}
+                        type="D"
+                        onClick={handleAddButtonClick}
+                      />
+                    )}
                   </div>
                 ))}
-
-                {/* 予定追加ホバーブロック（特定のセルがホバーされた時のみ表示） */}
-                {hoveredCell?.column === column && 
-                 hoveredCell?.type === "D" && (
-                  <HoverScheduleBlock
-                    key={`add-d-${hoveredCell.column}-${hoveredCell.hour}`}
-                    hour={hoveredCell.hour}
-                    column={hoveredCell.column}
-                    type="D"
-                    onClick={handleAddButtonClick}
-                  />
-                )}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.do
