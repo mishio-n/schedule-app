@@ -158,7 +158,7 @@ export function ScheduleApp() {
               className="grid grid-cols-2 border-r border-[#000000] relative"
             >
               {/* Plan側 */}
-              <div className="relative group">
+              <div className="relative group h-full w-full">
                 {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
@@ -193,7 +193,7 @@ export function ScheduleApp() {
               </div>
 
               {/* Do側 */}
-              <div className="relative group">
+              <div className="relative group h-full w-full">
                 {/* 時間の区切り線 */}
                 {hours.map((hour) => (
                   <div
