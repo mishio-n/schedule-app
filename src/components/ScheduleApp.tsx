@@ -175,19 +175,16 @@ export function ScheduleApp() {
                 ))}
 
                 {/* 予定追加ホバーブロック（特定のセルがホバーされた時のみ表示） */}
-                {hours.map((hour) => (
-                  hoveredCell?.hour === hour && 
-                  hoveredCell?.column === column && 
-                  hoveredCell?.type === "P" && (
-                    <HoverScheduleBlock
-                      key={`add-p-${column}-${hour}`}
-                      hour={hour}
-                      column={column}
-                      type="P"
-                      onClick={handleAddButtonClick}
-                    />
-                  )
-                ))}
+                {hoveredCell?.column === column && 
+                 hoveredCell?.type === "P" && (
+                  <HoverScheduleBlock
+                    key={`add-p-${hoveredCell.column}-${hoveredCell.hour}`}
+                    hour={hoveredCell.hour}
+                    column={hoveredCell.column}
+                    type="P"
+                    onClick={handleAddButtonClick}
+                  />
+                )}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.plan
@@ -218,19 +215,16 @@ export function ScheduleApp() {
                 ))}
 
                 {/* 予定追加ホバーブロック（特定のセルがホバーされた時のみ表示） */}
-                {hours.map((hour) => (
-                  hoveredCell?.hour === hour && 
-                  hoveredCell?.column === column && 
-                  hoveredCell?.type === "D" && (
-                    <HoverScheduleBlock
-                      key={`add-d-${column}-${hour}`}
-                      hour={hour}
-                      column={column}
-                      type="D"
-                      onClick={handleAddButtonClick}
-                    />
-                  )
-                ))}
+                {hoveredCell?.column === column && 
+                 hoveredCell?.type === "D" && (
+                  <HoverScheduleBlock
+                    key={`add-d-${hoveredCell.column}-${hoveredCell.hour}`}
+                    hour={hoveredCell.hour}
+                    column={hoveredCell.column}
+                    type="D"
+                    onClick={handleAddButtonClick}
+                  />
+                )}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.do
