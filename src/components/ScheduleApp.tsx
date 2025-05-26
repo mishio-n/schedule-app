@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { WeekDateHeader } from "../feature/schedule/WeekDateHeader";
 import { StartDatePicker } from "../feature/weekStartDate/StartDatePicker";
 import { useAppStore } from "../store/app";
-import { ScheduleAddButton } from "../feature/schedule/ScheduleAddButton";
+import { HoverScheduleBlock } from "../feature/schedule/HoverScheduleBlock";
 import { ScheduleItem } from "../feature/schedule/ScheduleItem";
 import { ScheduleForm } from "../feature/schedule/ScheduleForm";
 import { createWork } from "../model/work";
@@ -167,9 +167,9 @@ export function ScheduleApp() {
                   />
                 ))}
 
-                {/* 予定追加ボタン（ホバー時に表示） */}
+                {/* 予定追加ホバーブロック（ホバー時に表示） */}
                 {hours.map((hour) => (
-                  <ScheduleAddButton
+                  <HoverScheduleBlock
                     key={`add-p-${column}-${hour}`}
                     hour={hour}
                     column={column}
@@ -204,9 +204,9 @@ export function ScheduleApp() {
                   </div>
                 ))}
 
-                {/* 予定追加ボタン（ホバー時に表示） */}
+                {/* 予定追加ホバーブロック（ホバー時に表示） */}
                 {hours.map((hour) => (
-                  <ScheduleAddButton
+                  <HoverScheduleBlock
                     key={`add-d-${column}-${hour}`}
                     hour={hour}
                     column={column}
