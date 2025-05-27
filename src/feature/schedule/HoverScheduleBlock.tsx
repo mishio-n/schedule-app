@@ -1,7 +1,3 @@
-import { cn } from "@/lib/utils";
-import { PlusIcon } from "lucide-react";
-import React from "react";
-
 interface HoverScheduleBlockProps {
   hour: number;
   column: number;
@@ -16,8 +12,6 @@ export function HoverScheduleBlock({
   onClick,
 }: HoverScheduleBlockProps) {
   // 1時間のブロックとして表示
-  const startHour = hour;
-  const endHour = hour + 1;
   const height = 32; // 1時間 = 32px
 
   return (
@@ -35,11 +29,6 @@ export function HoverScheduleBlock({
         e.stopPropagation();
         onClick(hour, column, type);
       }}
-    >
-      <div className="flex items-center gap-1">
-        <PlusIcon size={12} />
-        <span>New Schedule</span>
-      </div>
-    </div>
+    />
   );
 }
