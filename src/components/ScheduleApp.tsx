@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { WeekDateHeader } from "../feature/schedule/WeekDateHeader";
 import { StartDatePicker } from "../feature/weekStartDate/StartDatePicker";
 import { useAppStore } from "../store/app";
-import { ScheduleAddButton } from "../feature/schedule/ScheduleAddButton";
+import { HoverScheduleBlock } from "../feature/schedule/HoverScheduleBlock";
 import { ScheduleItem } from "../feature/schedule/ScheduleItem";
 import { ScheduleForm } from "../feature/schedule/ScheduleForm";
 import { createWork } from "../model/work";
@@ -20,6 +20,11 @@ export function ScheduleApp() {
   } | null>(null);
   const { weekStartDate, schedules, addWork } = useAppStore();
   const [isDragging, setIsDragging] = useState(false);
+  const [hoveredCell, setHoveredCell] = useState<{
+    hour: number;
+    column: number;
+    type: "P" | "D";
+  } | null>(null);
 
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -158,25 +163,33 @@ export function ScheduleApp() {
               className="grid grid-cols-2 border-r border-[#000000] relative"
             >
               {/* Plan側 */}
-              <div className="relative group">
-                {/* 時間の区切り線 */}
-                {hours.map((hour) => (
-                  <div
-                    key={`p-hour-${column}-${hour}`}
-                    className="border-b border-[#000000] h-8"
-                  />
-                ))}
-
-                {/* 予定追加ボタン（ホバー時に表示） */}
-                {hours.map((hour) => (
-                  <ScheduleAddButton
-                    key={`add-p-${column}-${hour}`}
-                    hour={hour}
-                    column={column}
-                    type="P"
-                    onClick={handleAddButtonClick}
-                  />
-                ))}
+              <div className="relative h-full w-full">
+                {hours.map((hour) => {
+                  const isPlanHovered = 
+                    hoveredCell?.hour === hour && 
+                    hoveredCell?.column === column && 
+                    hoveredCell?.type === "P";
+                    
+                  return (
+                    <div
+                      key={`p-hour-${column}-${hour}`}
+                      className="border-b border-[#000000] h-8 relative overflow-hidden"
+                      onMouseEnter={() => setHoveredCell({ hour, column, type: "P" })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      {/* 予定追加ホバーブロック（このセルがホバーされた時のみ表示） */}
+                      {isPlanHovered && (
+                        <HoverScheduleBlock
+                          key={`add-p-${column}-${hour}`}
+                          hour={hour}
+                          column={column}
+                          type="P"
+                          onClick={handleAddButtonClick}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.plan
@@ -193,27 +206,34 @@ export function ScheduleApp() {
               </div>
 
               {/* Do側 */}
-              <div className="relative group">
-                {/* 時間の区切り線 */}
-                {hours.map((hour) => (
-                  <div
-                    key={`d-hour-${column}-${hour}`}
-                    className="border-b border-[#000000] h-8"
-                  >
-                    <div className="h-full border-l border-dashed border-[#7c7c7c]" />
-                  </div>
-                ))}
-
-                {/* 予定追加ボタン（ホバー時に表示） */}
-                {hours.map((hour) => (
-                  <ScheduleAddButton
-                    key={`add-d-${column}-${hour}`}
-                    hour={hour}
-                    column={column}
-                    type="D"
-                    onClick={handleAddButtonClick}
-                  />
-                ))}
+              <div className="relative h-full w-full">
+                {hours.map((hour) => {
+                  const isDoHovered = 
+                    hoveredCell?.hour === hour && 
+                    hoveredCell?.column === column && 
+                    hoveredCell?.type === "D";
+                    
+                  return (
+                    <div
+                      key={`d-hour-${column}-${hour}`}
+                      className="border-b border-[#000000] h-8 relative overflow-hidden"
+                      onMouseEnter={() => setHoveredCell({ hour, column, type: "D" })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      <div className="h-full border-l border-dashed border-[#7c7c7c]" />
+                      {/* 予定追加ホバーブロック（このセルがホバーされた時のみ表示） */}
+                      {isDoHovered && (
+                        <HoverScheduleBlock
+                          key={`add-d-${column}-${hour}`}
+                          hour={hour}
+                          column={column}
+                          type="D"
+                          onClick={handleAddButtonClick}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* スケジュールブロック */}
                 {currentSchedule.do
