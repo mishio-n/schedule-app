@@ -11,24 +11,26 @@ export function HoverScheduleBlock({
   type,
   onClick,
 }: HoverScheduleBlockProps) {
-  // 1時間のブロックとして表示
-  const height = 32; // 1時間 = 32px
-
   return (
-    <div
-      className="absolute inset-0 z-10 mx-1 my-0 rounded-md px-2 py-1 text-xs cursor-pointer opacity-70 transition-opacity flex items-center justify-center"
-      style={{
-        height: `${height}px`,
-        top: 0, // Ensure the block is positioned at the top of the cell
-        left: 0, // Ensure the block is positioned at the left of the cell
-        right: 0, // Ensure the block spans the width of the cell
-        backgroundColor: "#B2C8E7", // デフォルトの青色
-        border: "1px dashed #6B7280",
-      }}
+    <button
+      className="absolute z-10 left-0 top-0 w-full h-full flex items-center justify-center cursor-pointer"
       onClick={(e) => {
         e.stopPropagation();
         onClick(hour, column, type);
       }}
-    />
+    >
+      <div 
+        className="w-[calc(100%_-_8px)] h-[calc(100%_-_4px)] rounded-md px-2 py-1 text-xs opacity-70 flex items-center justify-center"
+        style={{
+          backgroundColor: "#B2C8E7", // デフォルトの青色
+          border: "1px dashed #6B7280",
+        }}
+      >
+        <div className="flex items-center gap-1">
+          <span>+</span>
+          <span>New Schedule</span>
+        </div>
+      </div>
+    </button>
   );
 }
