@@ -22,7 +22,7 @@ export function HoverScheduleBlock({
 
   return (
     <div
-      className="absolute left-0 right-0 top-0 mx-1 rounded-md px-2 py-1 text-xs cursor-pointer opacity-70 transition-opacity z-10 flex items-center justify-center"
+      className="absolute inset-0 z-10 mx-1 my-0 rounded-md px-2 py-1 text-xs cursor-pointer opacity-70 transition-opacity flex items-center justify-center"
       style={{
         height: `${height}px`,
         backgroundColor: "#B2C8E7", // デフォルトの青色
