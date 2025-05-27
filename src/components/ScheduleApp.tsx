@@ -173,7 +173,7 @@ export function ScheduleApp() {
                   return (
                     <div
                       key={`p-hour-${column}-${hour}`}
-                      className="border-b border-[#000000] h-8 relative"
+                      className="border-b border-[#000000] h-8 relative overflow-hidden"
                       onMouseEnter={() => setHoveredCell({ hour, column, type: "P" })}
                       onMouseLeave={() => setHoveredCell(null)}
                     >
@@ -216,7 +216,7 @@ export function ScheduleApp() {
                   return (
                     <div
                       key={`d-hour-${column}-${hour}`}
-                      className="border-b border-[#000000] h-8 relative"
+                      className="border-b border-[#000000] h-8 relative overflow-hidden"
                       onMouseEnter={() => setHoveredCell({ hour, column, type: "D" })}
                       onMouseLeave={() => setHoveredCell(null)}
                     >
